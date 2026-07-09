@@ -1,0 +1,444 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Kopitiam Tjoa — design tokens
+   Palette: aged paper base, warm brown ink, jade heritage accent,
+   vermillion signage accent, muted brass for dividers only.
+   ========================================================================== */
+
+:root {
+  --kopi-bg: #f2ead9;
+  --kopi-bg-raised: #ede0c7;
+  --kopi-ink: #3a2a1d;
+  --kopi-ink-soft: #6b5847;
+  --kopi-heritage: #3f6b52;
+  --kopi-heritage-soft: #dbe6dc;
+  --kopi-signage: #b5342a;
+  --kopi-signage-soft: #f1ddd8;
+  --kopi-metal: #a8813f;
+  --kopi-line: #c9b998;
+
+  --font-signage: var(--font-kavoon); /* Signboard wordmark only */
+  --font-display: var(--font-rozha); /* editorial headlines everywhere else */
+  --font-body: var(--font-vollkorn);
+  --font-utility: var(--font-plex-mono);
+
+  --shadow-stamp-sm: 3px 3px 0 0 var(--kopi-ink);
+  --shadow-stamp-md: 6px 6px 0 0 var(--kopi-ink);
+  --shadow-stamp-lg: 10px 10px 0 0 var(--kopi-ink);
+
+  /* Shared layout constant — menu hero and menu board must stay in the
+     same column grid. Defined once so they can never drift apart. */
+  --menu-rail-width: 280px;
+  --kopi-heritage-deep: #2c4a3a;
+
+  /* Hover-state darkening for FILLED heritage buttons only. */
+  --kopi-heritage-strong: #345943;
+
+  /* Hover-state darkening for FILLED signage buttons. If this already
+     exists elsewhere in your token file, don't duplicate it — this is
+     here because ButtonLink referenced it without a visible definition. */
+  --kopi-signage-strong: #8f291f;
+}
+
+@theme inline {
+  --color-kopi-bg: var(--kopi-bg);
+  --color-kopi-bg-raised: var(--kopi-bg-raised);
+  --color-kopi-ink: var(--kopi-ink);
+  --color-kopi-ink-soft: var(--kopi-ink-soft);
+  --color-kopi-heritage: var(--kopi-heritage);
+  --color-kopi-heritage-soft: var(--kopi-heritage-soft);
+  --color-kopi-signage: var(--kopi-signage);
+  --color-kopi-signage-soft: var(--kopi-signage-soft);
+  --color-kopi-metal: var(--kopi-metal);
+  --color-kopi-line: var(--kopi-line);
+  --color-kopi-heritage-deep: var(--kopi-heritage-deep);
+  --color-kopi-heritage-strong: var(--kopi-heritage-strong);
+  --color-kopi-signage-strong: var(--kopi-signage-strong);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-utility: var(--font-utility);
+}
+
+/*
+  Body owns layout/color via Tailwind utilities on the <body> element
+  in layout.tsx (bg-kopi-bg text-kopi-ink font-body). Nothing about the
+  page background or base text color should be declared here — one
+  source of truth only.
+*/
+
+/* Visible keyboard focus, in brand color instead of default blue.
+   Applies to all native interactive elements. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--kopi-signage);
+  outline-offset: 3px;
+}
+
+/* Reduced motion respect — global, so individual components never
+   need to remember to add this themselves. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Reusable brand patterns
+   Each one below is scoped to a specific, documented job. If you need a
+   "special" visual treatment and none of these fit, that's a sign to
+   extend one of these rather than invent a new one-off in a component.
+   ========================================================================== */
+
+/* Dotted leader line — menu board rows and the footer hours ledger. */
+.leader-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.leader-row .leader-fill {
+  flex: 1 1 auto;
+  border-bottom: 2px dotted var(--kopi-line);
+  margin-bottom: 0.3rem;
+  min-width: 1rem;
+}
+
+/* Stamp-style overlay for sold-out menu items. */
+.stamp-habis {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.stamp-habis span {
+  font-family: var(--font-utility);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--kopi-signage);
+  border: 3px solid var(--kopi-signage);
+  padding: 0.15em 0.6em;
+  transform: rotate(-9deg);
+  opacity: 0.85;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--kopi-bg) 88%, transparent);
+}
+
+/*
+  Peranakan tile motif.
+  RULE: exactly two call sites, sitewide, ever:
+    1. Home hero section
+    2. Footer
+  If you're reaching for `.texture-tile` a third time anywhere,
+  that's the signal to stop — add a plain divider or spacing instead.
+  Opacity is intentionally low (0.05) so it reads as paper texture,
+  not as a pattern competing with content.
+*/
+.texture-tile {
+  position: relative;
+}
+
+.texture-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      var(--kopi-heritage) 0,
+      var(--kopi-heritage) 1.5px,
+      transparent 1.5px,
+      transparent 22px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      var(--kopi-heritage) 0,
+      var(--kopi-heritage) 1.5px,
+      transparent 1.5px,
+      transparent 22px
+    );
+}
+
+/*
+  Large decorative background glyphs/numerals (e.g. "蔡記", "1968").
+  RULE: at most one per page, hero section only, always aria-hidden
+  in markup. This exists so opacity/color/sizing is defined in exactly
+  one place instead of re-guessed with arbitrary fractions per section.
+*/
+.watermark {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--kopi-line);
+  opacity: 0.08;
+  font-size: 8rem;
+}
+@media (min-width: 768px) {
+  .watermark {
+    font-size: 13rem;
+  }
+}
+.watermark--lg {
+  font-size: 12rem;
+}
+@media (min-width: 768px) {
+  .watermark--lg {
+    font-size: 20rem;
+  }
+}
+
+/* Pull-quote — the one and only quote treatment sitewide.
+   Use this class directly; do not hand-roll an equivalent with
+   Tailwind utilities in a component. */
+.pull-quote {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--kopi-ink);
+  border-left: 3px solid var(--kopi-heritage);
+  padding-left: 1.1rem;
+}
+
+/*
+  Stamp-button — the homepage's primary CTA, and the ONLY rotated
+  element allowed to exist outside .stamp-habis. The rotation and its
+  reset live entirely here (not split between inline styles and
+  Tailwind classes in the component) so there is one source of truth.
+
+  Interaction parity across input types:
+  - Mouse:    hover flattens the stamp, seal fades in.
+  - Touch:    no hover event exists, so :active resolves the same
+              flattened/sealed state immediately on tap.
+  - Keyboard: :focus-visible matches the hover state exactly.
+*/
+.stamp-button {
+  position: relative;
+  display: inline-flex;
+  transform: rotate(-1.5deg);
+  transition: transform 0.15s ease;
+}
+
+.stamp-button::after {
+  content: "★";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  border-radius: 50%;
+  border: 2px solid var(--kopi-ink);
+  background: var(--kopi-bg);
+  color: var(--kopi-ink);
+  opacity: 0;
+  transform: scale(0.6) rotate(-15deg);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stamp-button:hover {
+    transform: rotate(0deg);
+  }
+
+  .stamp-button:hover::after {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.stamp-button:active,
+.stamp-button:focus-visible {
+  transform: rotate(0deg);
+}
+
+.stamp-button:active::after,
+.stamp-button:focus-visible::after {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* Ledger entry — About page generation records. Perforated receipt-stub
+   edge on the left; border strengthens on hover/focus-within to read
+   as an archival record being pulled forward. */
+.ledger-entry {
+  position: relative;
+  border-left: 2px solid var(--kopi-line);
+  background: color-mix(in srgb, var(--kopi-bg-raised) 60%, transparent);
+  transition: border-color 0.2s ease;
+}
+
+.ledger-entry::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-image: radial-gradient(
+    circle,
+    var(--kopi-bg) 2px,
+    transparent 2.2px
+  );
+  background-size: 100% 14px;
+  background-repeat: repeat-y;
+}
+
+/* Press-button — a REAL interactive control with tactile press
+   feedback. Distinct from .stamp-button (a link styled as a rotated
+   ink stamp): this is for plain action buttons, no rotation involved. */
+.press-button {
+  box-shadow: var(--shadow-stamp-sm);
+  transition:
+    box-shadow 0.1s ease,
+    transform 0.1s ease;
+}
+.press-button:hover,
+.press-button:focus-visible {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 0 var(--kopi-ink);
+}
+.press-button:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--kopi-ink);
+}
+
+/* Small index numbering — compact grids (e.g. HighlightList). Distinct
+   from .folio-number (About generation log), which is intentionally
+   much larger and only for that one archival section. */
+.index-tag {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-utility);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--kopi-ink-soft);
+}
+
+/*
+  Corner radius: this brand is flat/hard-edged everywhere, on every
+  page, including transactional UI (cart, forms, menu controls) — not
+  just marketing pages. Do not introduce rounded-sm/rounded-md anywhere.
+  The ONLY circular shapes allowed sitewide are conventional count/status
+  indicators, because circles read universally as "live indicator" and
+  users already expect them there:
+    - .status-pill .dot   (open/closed indicator)
+    - .count-badge        (cart item count)
+*/
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background: var(--kopi-bg);
+  color: var(--kopi-signage-strong);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-plex-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kopi-ink-soft);
+}
+
+.status-pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: var(--kopi-ink-soft);
+  flex-shrink: 0;
+}
+
+.status-pill .dot--open {
+  background-color: var(--kopi-heritage);
+}
+.text-emboss {
+  text-shadow: 1px 1px 0 rgba(58, 42, 29, 0.14);
+}
+
+/* Stamp-in entrance — for small badge/tag elements (e.g. "Papan Harga
+   Resmi"), echoing the rotated ink-stamp motif already established by
+   .stamp-button, applied ONLY as a one-time mount animation, never a
+   hover/loop, so it stays premium rather than gimmicky. */
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    transform: scale(1.35) rotate(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+.stamp-in {
+  animation: stamp-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.2s;
+}
+
+/* Reveal-on-scroll base state. Paired with the <Reveal> component,
+   which toggles data-visible via IntersectionObserver. Respects
+   prefers-reduced-motion automatically through the existing global
+   rule at the top of this file (transition-duration gets zeroed). */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+[data-reveal="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tag-pill {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: var(--kopi-bg);
+  border: 1px solid var(--kopi-ink);
+  font-family: var(--font-utility);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kopi-ink);
+}
