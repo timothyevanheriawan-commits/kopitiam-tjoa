@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { BusinessHours } from "@/types/domain";
 import { Logo } from "@/components/layout/logo";
-import { getOpenStatus } from "@/lib/hours";
+import { getOpenStatus, getWibDayKey } from "@/lib/hours";
 
 const DAY_LABELS: { key: keyof BusinessHours; label: string }[] = [
   { key: "monday", label: "Senin" },
@@ -35,7 +35,7 @@ export function Footer({
   hours: BusinessHours;
   manualOverride?: boolean | null;
 }) {
-  const todayKey = DAY_KEYS[new Date().getDay()];
+const todayKey = getWibDayKey();
   const status = getOpenStatus(hours, manualOverride);
 
   return (

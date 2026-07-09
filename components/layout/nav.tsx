@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Logo } from "@/components/layout/logo";
 
 const NAV_LINKS = [
@@ -13,15 +14,39 @@ const NAV_LINKS = [
 export function Nav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 12);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close the mobile menu automatically on route change — prevents a
+  // stale open menu from persisting after tapping a link that scrolls
+  // to the same page (edge case the previous version didn't guard).
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-kopi-line bg-kopi-bg-raised/45 backdrop-blur-sm">
-      <div className="mx-auto max-w-5xl px-6 h-16 md:h-18 flex items-center justify-between">
+    <header
+      className={`sticky top-0 z-50 border-b bg-kopi-bg-raised/45 backdrop-blur-sm transition-[border-color,box-shadow] duration-300 ${
+        scrolled
+          ? "border-kopi-ink/40 shadow-[0_2px_0_0_var(--kopi-line)]"
+          : "border-kopi-line"
+      }`}
+    >
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6 md:h-18">
         <Logo className="h-12 w-auto" />
 
         <nav
           aria-label="Navigasi utama"
-          className="hidden md:flex items-center gap-8"
+          className="hidden items-center gap-8 md:flex"
         >
           {NAV_LINKS.map((link) => {
             const active = pathname === link.href;
@@ -33,11 +58,17 @@ export function Nav() {
                 className="relative py-2 font-body text-sm font-semibold tracking-wide text-kopi-ink-soft transition-colors hover:text-kopi-ink"
               >
                 {link.label}
-                <span
-                  className={`absolute -bottom-px left-0 h-[2px] w-full origin-left bg-kopi-signage transition-transform ${
-                    active ? "scale-x-100" : "scale-x-0"
-                  }`}
-                />
+                {active && (
+                  <motion.span
+                    layoutId="nav-active-indicator"
+                    className="absolute -bottom-px left-0 h-[2px] w-full bg-kopi-signage"
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0.01 }
+                        : { type: "spring", stiffness: 380, damping: 30 }
+                    }
+                  />
+                )}
               </Link>
             );
           })}
@@ -70,38 +101,68 @@ export function Nav() {
         </button>
       </div>
 
-      <nav
-        id="mobile-nav"
-        aria-label="Navigasi mobile"
-        className={`grid overflow-hidden border-t border-kopi-line transition-[grid-template-rows] duration-200 md:hidden ${
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <ul className="flex flex-col gap-1 px-6 py-4">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block py-2.5 font-body text-sm font-semibold text-kopi-ink"
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.nav
+            id="mobile-nav"
+            aria-label="Navigasi mobile"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{
+              duration: prefersReducedMotion ? 0.01 : 0.25,
+              ease: "easeInOut",
+            }}
+            className="overflow-hidden border-t border-kopi-line md:hidden"
+          >
+            <motion.ul
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: prefersReducedMotion ? 0 : 0.06,
+                  },
+                },
+              }}
+              className="flex flex-col gap-1 px-6 py-4"
+            >
+              {NAV_LINKS.map((link) => (
+                <motion.li
+                  key={link.href}
+                  variants={{
+                    hidden: { opacity: 0, x: -12 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
                 >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-            <li className="pt-2">
-              <Link
-                href="/menu"
-                onClick={() => setIsOpen(false)}
-                className="block bg-kopi-ink px-4 py-2.5 text-center font-body text-sm font-bold text-kopi-bg"
+                  <Link
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="block py-2.5 font-body text-sm font-semibold text-kopi-ink"
+                  >
+                    {link.label}
+                  </Link>
+                </motion.li>
+              ))}
+              <motion.li
+                className="pt-2"
+                variants={{
+                  hidden: { opacity: 0, x: -12 },
+                  visible: { opacity: 1, x: 0 },
+                }}
               >
-                Pesan Sekarang
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
+                <Link
+                  href="/menu"
+                  onClick={() => setIsOpen(false)}
+                  className="block bg-kopi-ink px-4 py-2.5 text-center font-body text-sm font-bold text-kopi-bg"
+                >
+                  Pesan Sekarang
+                </Link>
+              </motion.li>
+            </motion.ul>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

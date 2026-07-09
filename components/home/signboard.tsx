@@ -2,7 +2,7 @@ export function Signboard() {
   return (
     <div className="relative inline-block max-w-full -rotate-1 transform-gpu">
       {/* Outer enamel frame — the one hard-shadow anchor on the homepage. */}
-      <div className="border-4 border-kopi-ink bg-kopi-bg p-1 shadow-[var(--shadow-stamp-lg)]">
+      <div className="border-4 border-kopi-ink bg-kopi-bg p-1 shadow-(--shadow-stamp-lg)">
         <div className="relative border-2 border-kopi-ink bg-kopi-heritage px-8 py-8 text-center sm:px-12 sm:py-10 md:px-16 md:py-12">
           <p
             lang="zh"

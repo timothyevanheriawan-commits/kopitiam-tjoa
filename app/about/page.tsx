@@ -11,6 +11,7 @@ import { ProcessSteps } from "@/components/about/process-steps";
 import { HighlightList } from "@/components/about/highlight-list";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ButtonLink } from "@/components/ui/button-link";
+import { Reveal } from "@/components/ui/reveal";
 
 export default function AboutPage() {
   return (

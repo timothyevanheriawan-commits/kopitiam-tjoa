@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { OrderStatus } from "@/types/domain";
+import { BrandMark } from "../brand/brand-mark";
 
 interface OrderStatusData {
   order_number: string;
@@ -129,6 +130,32 @@ export function OrderStatusView({
         </p>
       </div>
 
+      {data.status === "received" && (
+        <div className="stamp-in ledger-entry mb-10 flex flex-col items-center gap-3 p-6 text-center md:p-8">
+          <BrandMark className="h-10 w-10" />
+          <p className="font-display text-xl text-kopi-heritage tracking-tight md:text-2xl">
+            Terima Kasih Sudah Memesan!
+          </p>
+          <p className="max-w-sm font-body text-sm leading-relaxed text-kopi-ink-soft">
+            Pesanan Anda sedang kami siapkan dengan resep yang sama sejak
+            gerobak pertama di Pasar Turi, 1968. Pantau statusnya di halaman
+            ini.
+          </p>
+        </div>
+      )}
+      {data.status === "completed" && (
+        <div className="stamp-in ledger-entry mb-10 flex flex-col items-center gap-3 p-6 text-center md:p-8">
+          <BrandMark className="h-10 w-10" />
+          <p className="font-display text-xl text-kopi-heritage tracking-tight md:text-2xl">
+            Selamat Menikmati!
+          </p>
+          <p className="max-w-sm font-body text-sm leading-relaxed text-kopi-ink-soft">
+            Terima kasih sudah mampir ke Kopitiam Tjoa. Sampai jumpa lagi di
+            kunjungan berikutnya.
+          </p>
+        </div>
+      )}
+
       {/* aria-live wraps the whole progress region so a status change
           arriving via polling — e.g. staff marks it "Siap Diambil" or
           cancels it while the customer is mid-read — gets announced to
@@ -210,7 +237,7 @@ export function OrderStatusView({
                   {item.quantity}× {item.itemName}
                 </p>
                 {item.selectedVariant && (
-                  <p className="font-body text-xs text-kopi-ink-soft mt-0.5 break-words">
+                  <p className="font-body text-xs text-kopi-ink-soft mt-0.5 wrap-break-word">
                     {item.selectedVariant}
                   </p>
                 )}

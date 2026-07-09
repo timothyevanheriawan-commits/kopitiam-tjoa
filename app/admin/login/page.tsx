@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AdminButton } from "@/components/admin/admin-button";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -34,7 +35,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-theme(spacing.20))] flex items-center justify-center px-6 py-20">
+    <main className="min-h-[calc(100vh-(--spacing(20)))] flex items-center justify-center px-6 py-20">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <p className="index-tag inline-block mb-4">STAF</p>
@@ -90,13 +91,15 @@ export default function AdminLoginPage() {
               </p>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="press-button w-full text-center disabled:opacity-50"
-            >
+            <AdminButton
+  type="submit"
+  variant="primary"
+  size="md"
+  disabled={isSubmitting}
+  className="w-full press-button--full"
+>
               {isSubmitting ? "Memproses..." : "Masuk"}
-            </button>
+            </AdminButton>
           </form>
         </div>
 

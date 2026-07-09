@@ -376,7 +376,7 @@ export function AdminDashboard() {
                     onClick={() => setStatusFilter(f.value)}
                     className={
                       statusFilter === f.value
-                        ? "!text-kopi-ink !border-kopi-ink"
+                        ? "text-kopi-ink! border-kopi-ink!"
                         : ""
                     }
                   >

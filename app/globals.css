@@ -326,6 +326,16 @@ select:focus-visible,
   box-shadow: 0 0 0 0 var(--kopi-ink);
 }
 
+/* Full-width press-buttons get a smaller shadow offset — the default
+   3px reads fine on auto-width buttons but looks lopsided once the
+   bottom edge stretches across a full-width element. */
+.press-button.press-button--full {
+  box-shadow: 2px 2px 0 0 var(--kopi-ink);
+}
+.press-button.press-button--full:hover,
+.press-button.press-button--full:focus-visible {
+  box-shadow: 1px 1px 0 0 var(--kopi-ink);
+}
 /* Small index numbering — compact grids (e.g. HighlightList). Distinct
    from .folio-number (About generation log), which is intentionally
    much larger and only for that one archival section. */
@@ -441,4 +451,46 @@ select:focus-visible,
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--kopi-ink);
+}
+
+/* Variant modifiers for <Reveal>. Higher specificity than the base
+   [data-reveal] rule (one extra class) so these cleanly override the
+   default translateY without needing !important. */
+[data-reveal].reveal-fade {
+  transform: none;
+}
+
+[data-reveal].reveal-slide-left {
+  transform: translateX(-2rem);
+}
+[data-reveal="true"].reveal-slide-left {
+  transform: translateX(0);
+}
+
+[data-reveal].reveal-slide-right {
+  transform: translateX(2rem);
+}
+[data-reveal="true"].reveal-slide-right {
+  transform: translateX(0);
+}
+
+[data-reveal].reveal-scale {
+  transform: scale(0.94);
+}
+[data-reveal="true"].reveal-scale {
+  transform: scale(1);
+}
+
+/* Hover lift — cards throughout the site (highlights, menu, gallery).
+   Kept flat/hard-edged like the rest of the brand: no blur, no glow,
+   just a small stamp shadow and a slight lift. Same tactile language
+   as .press-button, tuned softer since these aren't primary actions. */
+.hover-lift {
+  transition: transform 350ms ease, box-shadow 350ms ease, border-color 350ms ease;
+}
+.hover-lift:hover,
+.hover-lift:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 4px 4px 0 0 var(--kopi-ink);
+  border-color: var(--kopi-ink);
 }

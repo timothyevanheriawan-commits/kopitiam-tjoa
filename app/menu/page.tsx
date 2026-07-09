@@ -136,7 +136,7 @@ export default function MenuPage() {
           <Reveal>
             <div className="flex flex-wrap items-center justify-between gap-6 border-2 border-dashed border-kopi-ink/35 bg-kopi-bg-raised p-6 shadow-(--shadow-stamp-sm) lg:flex-nowrap">
               <div className="flex items-center gap-4">
-                <div className="hidden h-10 w-1 flex-shrink-0 bg-kopi-heritage-deep sm:block" />
+                <div className="hidden h-10 w-1 shrink-0 bg-kopi-heritage-deep sm:block" />
                 <div>
                   <p className="font-body text-base font-bold text-kopi-ink">
                     Butuh pesanan dalam jumlah besar, untuk acara atau usaha
