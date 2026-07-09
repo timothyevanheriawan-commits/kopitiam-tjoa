@@ -86,7 +86,6 @@ export function HighlightsStrip() {
               key={item.name}
               variant="slide-right"
               delay={150 + i * 120}
-              as="li"
             >
               <li className="hover-lift relative border border-kopi-line bg-kopi-bg-raised p-4">
                 <div className="absolute right-4 top-4">
