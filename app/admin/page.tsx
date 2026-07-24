@@ -2,11 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { BrandMark } from "@/components/brand/brand-mark";
-import { AdminButton } from "@/components/admin/admin-button";
-import { Reveal } from "@/components/ui/reveal";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { AdminButton } from "@/components/admin/admin-button";
+
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,36 +36,24 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-kopi-bg px-6 py-16">
-      {/* One watermark per page, hero-equivalent context, per the
-          project's own governing rule — this IS this page's hero. */}
-      <span
-        aria-hidden="true"
-        className="watermark -bottom-16 -right-10 select-none"
-      >
-        蔡記
-      </span>
-
-      <Reveal className="relative z-10 w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <BrandMark className="h-14 w-14" />
-          <p className="mt-4 font-utility text-xs font-bold uppercase tracking-widest text-kopi-signage">
-            Akses Staf
-          </p>
-          <h1 className="mt-2 font-display text-3xl text-kopi-ink tracking-tight">
-            Masuk ke Dasbor
+    <main className="min-h-[calc(100vh-(--spacing(20)))] flex items-center justify-center px-6 py-20">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <p className="index-tag inline-block mb-4">STAF</p>
+          <h1 className="font-display text-3xl text-kopi-ink tracking-tight mb-2">
+            Masuk Admin
           </h1>
-          <p className="mt-2 font-body text-sm text-kopi-ink-soft">
-            Khusus staf Kopitiam Tjoa, sejak 1968.
+          <p className="font-body text-sm text-kopi-ink-soft">
+            Khusus staf Kopitiam Tjoa.
           </p>
         </div>
 
-        <div className="ledger-entry p-6 shadow-(--shadow-stamp-md) md:p-8">
+        <div className="ledger-entry p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block font-utility text-xs uppercase tracking-widest text-kopi-ink-soft"
+                className="block font-utility text-xs uppercase tracking-widest text-kopi-ink-soft mb-2"
               >
                 Email
               </label>
@@ -77,14 +64,14 @@ export default function AdminLoginPage() {
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-kopi-line bg-kopi-bg px-4 py-3 font-body text-sm text-kopi-ink transition-colors focus-visible:border-kopi-heritage-deep"
+                className="w-full border border-kopi-line bg-kopi-bg px-4 py-3 font-body text-sm text-kopi-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:border-kopi-heritage"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="mb-2 block font-utility text-xs uppercase tracking-widest text-kopi-ink-soft"
+                className="block font-utility text-xs uppercase tracking-widest text-kopi-ink-soft mb-2"
               >
                 Kata Sandi
               </label>
@@ -95,15 +82,12 @@ export default function AdminLoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-kopi-line bg-kopi-bg px-4 py-3 font-body text-sm text-kopi-ink transition-colors focus-visible:border-kopi-heritage-deep"
+                className="w-full border border-kopi-line bg-kopi-bg px-4 py-3 font-body text-sm text-kopi-ink focus-visible:outline-2 focus-visible:outline-offset-2"
               />
             </div>
 
             {error && (
-              <p
-                role="alert"
-                className="border border-kopi-signage bg-kopi-signage-soft px-3 py-2 font-body text-sm text-kopi-signage"
-              >
+              <p className="font-body text-sm text-kopi-signage" role="alert">
                 {error}
               </p>
             )}
@@ -113,7 +97,7 @@ export default function AdminLoginPage() {
               variant="primary"
               size="md"
               disabled={isSubmitting}
-              className="w-full"
+              className="w-full press-button--full"
             >
               {isSubmitting ? "Memproses..." : "Masuk"}
             </AdminButton>
@@ -121,16 +105,13 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="mt-6 text-center font-body text-xs text-kopi-ink-soft">
-          Bukan staf?{" "}
-          <Link
-            href="/"
-            className="text-kopi-heritage-deep underline underline-offset-2 hover:text-kopi-ink"
-          >
-            Kembali ke beranda
+          Bukan staf? Kembali ke{" "}
+          <Link href="/" className="underline">
+            beranda
           </Link>
           .
         </p>
-      </Reveal>
+      </div>
     </main>
   );
 }
