@@ -105,7 +105,6 @@ export function OrderStatusView({
 
   const isCancelled = data.status === "cancelled";
   const currentStepIndex = STATUS_STEPS.findIndex((s) => s.key === data.status);
-  const statusChanged = previousStatus.current !== data.status;
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-16 md:py-24">

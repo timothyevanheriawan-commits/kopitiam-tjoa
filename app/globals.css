@@ -190,6 +190,7 @@ select:focus-visible,
   color: var(--kopi-line);
   opacity: 0.08;
   font-size: 8rem;
+  filter: url(#ink-bleed);
 }
 @media (min-width: 768px) {
   .watermark {

@@ -8,7 +8,7 @@ const MAPS_DIRECTIONS_HREF =
 
 export function LocationCard() {
   return (
-    <div className="border border-kopi-line bg-kopi-bg">
+    <div className="border border-kopi-ink bg-kopi-bg shadow-(--shadow-stamp-md)">
       <div className="aspect-4/3-full md:aspect-video">
         <iframe
           title="Lokasi kedai di Jl. Kembang Jepun, Surabaya"

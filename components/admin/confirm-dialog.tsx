@@ -73,7 +73,11 @@ export function ConfirmDialog({
           >
             {cancelLabel}
           </AdminButton>
-          <AdminButton variant="danger" size="md" onClick={onConfirm}>
+          <AdminButton
+            variant={destructive ? "primary" : "success"}
+            size="md"
+            onClick={onConfirm}
+          >
             {confirmLabel}
           </AdminButton>
         </div>

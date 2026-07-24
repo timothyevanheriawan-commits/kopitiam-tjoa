@@ -13,16 +13,6 @@ const DAY_LABELS: { key: keyof BusinessHours; label: string }[] = [
   { key: "sunday", label: "Minggu" },
 ];
 
-const DAY_KEYS: (keyof BusinessHours)[] = [
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-];
-
 function formatDayHours(hours: BusinessHours[keyof BusinessHours]) {
   if (hours.closed || !hours.open || !hours.close) return "Tutup";
   return `${hours.open} sampai ${hours.close}`;
@@ -35,7 +25,7 @@ export function Footer({
   hours: BusinessHours;
   manualOverride?: boolean | null;
 }) {
-const todayKey = getWibDayKey();
+  const todayKey = getWibDayKey();
   const status = getOpenStatus(hours, manualOverride);
 
   return (

@@ -56,21 +56,10 @@ export async function POST(request: Request) {
       );
     }
   }
+
   // BARU: cegah spam order dari 1 sumber yang sama.
   const clientIp = getClientIp(request);
- const withinLimit = await checkRateLimit(clientIp);
- if (!withinLimit) {
-   return NextResponse.json(
-     {
-       error:
-         "Terlalu banyak pesanan dari perangkat ini dalam waktu singkat, mohon tunggu beberapa menit.",
-     },
-     { status: 429 },
-   );
- }
- await recordOrderAttempt(clientIp);
- const supabase = createServiceClient();
- 
+  const withinLimit = await checkRateLimit(clientIp);
   if (!withinLimit) {
     return NextResponse.json(
       {
@@ -80,6 +69,7 @@ export async function POST(request: Request) {
       { status: 429 },
     );
   }
+  const supabase = createServiceClient();
 
   // Ambil ulang harga dan ketersediaan dari server — TIDAK percaya
   // harga yang dikirim client, ini pertahanan utama tanpa payment gateway.
@@ -197,7 +187,8 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
-    await recordOrderAttempt(clientIp);
+
+  await recordOrderAttempt(clientIp);
 
   return NextResponse.json({
     orderId: order.id,

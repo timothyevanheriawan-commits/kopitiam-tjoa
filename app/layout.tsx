@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Kavoon, Rozha_One, Vollkorn, IBM_Plex_Mono } from "next/font/google";
-import { Nav } from "@/components/layout/nav";
-import { Footer } from "@/components/layout/footer";
-import { DEFAULT_HOURS } from "@/lib/constants";
 import "./globals.css";
 import { SiteChrome } from "@/components/layout/site-chrome";
 
@@ -70,6 +67,29 @@ export default function RootLayout({
       className={`${kavoon.variable} ${rozhaOne.variable} ${vollkorn.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="flex h-full min-h-full flex-col bg-kopi-bg font-body text-kopi-ink">
+        {/* Defines the watermark ink-bleed filter once, site-wide.
+            Zero visual footprint of its own — feTurbulence +
+            feDisplacementMap distorts .watermark glyph edges
+            irregularly, reading as slightly-imprecise hand-stamped
+            ink instead of a crisp vector glyph. */}
+        <svg aria-hidden="true" className="absolute h-0 w-0 overflow-hidden">
+          <filter id="ink-bleed" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.012 0.035"
+              numOctaves="2"
+              seed="7"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="7"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </svg>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border focus:border-kopi-ink focus:bg-kopi-bg focus:px-4 focus:py-2 focus:font-body focus:text-sm focus:font-semibold focus:text-kopi-ink"

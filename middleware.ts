@@ -29,10 +29,20 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  const isLoginRoute = request.nextUrl.pathname === "/admin/login";
+  const pathname = request.nextUrl.pathname;
+  const isAdminPage = pathname.startsWith("/admin");
+  const isAdminApiRoute = pathname.startsWith("/api/admin");
+  const isLoginRoute = pathname === "/admin/login";
 
-  if (isAdminRoute && !isLoginRoute && !user) {
+  // /api/admin/* route handlers already re-check auth themselves (defense
+  // in depth), but this stops unauthenticated requests before they reach
+  // the handler at all, and means there's one place to fix if a new
+  // admin route forgets its own check.
+  if (isAdminApiRoute && !user) {
+    return NextResponse.json({ error: "Tidak diizinkan." }, { status: 401 });
+  }
+
+  if (isAdminPage && !isLoginRoute && !user) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 

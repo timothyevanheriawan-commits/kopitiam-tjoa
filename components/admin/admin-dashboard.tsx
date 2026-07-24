@@ -150,7 +150,12 @@ export function AdminDashboard() {
     }
   }, []);
 
+  // loadOrders/loadMenu are async; their setState calls happen after an
+  // await, not synchronously. This effect syncs with external systems
+  // (initial fetch, Supabase realtime channel, polling fallback), which
+  // is what effects are for.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- see above
     loadOrders();
     loadMenu();
 
@@ -286,7 +291,6 @@ export function AdminDashboard() {
 
   return (
     <>
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio ref={audioRef} src="/sounds/new-order.mp3" preload="auto" />
 
       <div className="print:hidden">

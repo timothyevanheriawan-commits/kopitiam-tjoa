@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { Signboard } from "@/components/home/signboard";
-import { OpenBadge } from "@/components/home/open-badge";
 import { HighlightsStrip } from "@/components/home/highlights-strip";
 import { KopiIllustration } from "@/components/home/kopi-illustration";
 import { LocationCard } from "@/components/home/location-card";
@@ -9,6 +7,7 @@ import { getOpenStatus } from "@/lib/hours";
 import { DEFAULT_HOURS } from "@/lib/constants";
 import { HeroContent } from "@/components/home/hero-content";
 import { Reveal } from "@/components/ui/reveal";
+import { SectionHeader } from "@/components/ui/section-header";
 
 // Assumes lib/hours.ts returns a typed { isOpen: boolean; label: string }
 // contract (per the round-1 recommendation). No shape-guessing here —
@@ -41,53 +40,58 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NARRATIVE */}
-      <section className="border-b border-kopi-line py-16 md:py-24">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <Reveal variant="slide-left">
-              <figure className="border border-kopi-line bg-kopi-bg-raised p-2">
-                <div className="flex items-center justify-center bg-kopi-bg p-8">
-                  <KopiIllustration />
-                </div>
-                <figcaption className="mt-2 px-2 pb-2 font-body text-xs font-semibold uppercase tracking-wider text-kopi-ink-soft">
-                  Kisah tiga generasi
-                </figcaption>
-              </figure>
-            </Reveal>
+      {/* NARRATIVE — deliberately breaks the max-w-5xl centered-grid
+          pattern every other section uses. Full-bleed heritage band so
+          the page has at least one moment of scale/contrast instead of
+          every section resolving to the same boxed 2-column shape. */}
+      <section className="relative overflow-hidden bg-kopi-heritage-deep py-20 text-kopi-bg md:py-28">
+        <span
+          aria-hidden="true"
+          className="watermark watermark--lg -bottom-16 -left-10"
+          style={{ color: "var(--kopi-bg)" }}
+        >
+          蔡記
+        </span>
 
-            <Reveal variant="slide-right" delay={150}>
-              <div>
-                <p className="mb-2 font-body text-xs font-bold uppercase tracking-widest text-kopi-heritage">
-                  Cerita Rasa Kami
-                </p>
-                <h2 className="mb-6 font-display text-3xl font-bold tracking-tight text-kopi-ink md:text-4xl">
-                  Sejak Gerobak Kayu Pertama di Pasar Turi
-                </h2>
+        <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
+          <Reveal>
+            <p className="mb-3 font-utility text-xs font-bold uppercase tracking-widest text-kopi-bg/70">
+              Cerita Rasa Kami
+            </p>
+            <h2 className="mb-8 font-display text-4xl font-bold tracking-tight text-kopi-bg md:text-5xl">
+              Sejak Gerobak Kayu Pertama di Pasar Turi
+            </h2>
 
-                <p className="pull-quote mb-6">
-                  Tjoa Kim Hok memulai dari gerobak pinggir Pasar Turi, tiga
-                  menu saja, dilayani sebelum subuh untuk kuli tekstil yang
-                  mulai bekerja sebelum matahari terbit.
-                </p>
+            <p className="mx-auto mb-8 max-w-xl border-l-3 border-kopi-bg/40 pl-5 text-left font-body text-lg italic leading-relaxed text-kopi-bg/95 md:text-xl">
+              Tjoa Kim Hok memulai dari gerobak pinggir Pasar Turi, tiga
+              menu saja, dilayani sebelum subuh untuk kuli tekstil yang
+              mulai bekerja sebelum matahari terbit.
+            </p>
 
-                <p className="font-body text-base leading-relaxed text-kopi-ink-soft md:text-lg">
-                  Hampir enam dekade berlalu, resep inti tidak pernah berubah.
-                  Biji kopi masih dipanggang manual dengan takaran yang sama,
-                  meja kayu jati asli masih menyambut pelanggan, dan papan nama
-                  di depan masih hasil lukisan tangan yang sama, hanya
-                  direstorasi sesekali supaya tetap terbaca.
-                </p>
+            <p className="mx-auto mb-10 max-w-xl font-body text-base leading-relaxed text-kopi-bg/75 md:text-lg">
+              Hampir enam dekade berlalu, resep inti tidak pernah berubah.
+              Biji kopi masih dipanggang manual dengan takaran yang sama,
+              meja kayu jati asli masih menyambut pelanggan, dan papan nama
+              di depan masih hasil lukisan tangan yang sama, hanya
+              direstorasi sesekali supaya tetap terbaca.
+            </p>
 
-                <Link
-                  href="/about"
-                  className="mt-6 inline-flex items-center gap-1.5 font-body text-sm font-semibold text-kopi-signage underline underline-offset-4 decoration-kopi-signage/40 transition-colors hover:text-kopi-heritage"
-                >
-                  Baca kisah lengkap kami →
-                </Link>
-              </div>
-            </Reveal>
-          </div>
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-1.5 font-body text-sm font-semibold text-kopi-bg underline underline-offset-4 decoration-kopi-bg/40 transition-colors hover:text-kopi-heritage-soft"
+            >
+              Baca kisah lengkap kami →
+            </Link>
+          </Reveal>
+
+          <Reveal delay={150}>
+            <figure className="mx-auto mt-14 inline-flex flex-col items-center border border-kopi-ink bg-kopi-bg p-4 shadow-(--shadow-stamp-sm)">
+              <KopiIllustration />
+              <figcaption className="mt-2 font-body text-xs font-semibold uppercase tracking-wider text-kopi-ink-soft">
+                Kisah tiga generasi
+              </figcaption>
+            </figure>
+          </Reveal>
         </div>
       </section>
 
@@ -97,12 +101,11 @@ export default function Home() {
           <div className="mx-auto max-w-5xl px-6">
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
               <div>
-                <p className="mb-2 font-body text-xs font-bold uppercase tracking-widest text-kopi-signage">
-                  Kunjungi Kami
-                </p>
-                <h2 className="mb-6 font-display text-3xl tracking-tight text-kopi-heritage md:text-4xl">
-                  Lokasi Kampung Lama
-                </h2>
+                <SectionHeader
+                  eyebrow="Kunjungi Kami"
+                  title="Lokasi Kampung Lama"
+                  className="mb-6"
+                />
 
                 <div className="border-l-4 border-kopi-line pl-5">
                   <p className="font-body text-lg font-semibold text-kopi-ink">

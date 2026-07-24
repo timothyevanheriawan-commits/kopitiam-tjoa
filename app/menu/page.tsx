@@ -86,32 +86,32 @@ export default function MenuPage() {
                   giving them a hover reaction would imply an affordance
                   that doesn't exist. */}
               <Reveal delay={100}>
-                <div className="border border-kopi-line bg-kopi-bg/80 p-4 border-t-2 border-t-kopi-heritage-deep">
-                  <p className="font-body text-xs font-bold tracking-wide text-kopi-heritage-deep">
-                    Biji Kopi Pilihan
-                  </p>
-                  <p className="mt-1.5 font-body text-sm leading-relaxed text-kopi-ink-soft">
-                    Kami memilih biji Robusta Dampit yang disangrai gelap di
-                    atas bara kayu, menghasilkan aroma arang yang kuat dan rasa
-                    pekat di setiap tegukan.
-                  </p>
+                <div className="space-y-5 border-t border-kopi-line pt-5">
+                  <div>
+                    <p className="font-body text-xs font-bold tracking-wide text-kopi-ink-soft">
+                      Biji Kopi Pilihan
+                    </p>
+                    <p className="mt-1.5 font-body text-sm leading-relaxed text-kopi-ink-soft">
+                      Kami memilih biji Robusta Dampit yang disangrai gelap di
+                      atas bara kayu, menghasilkan aroma arang yang kuat dan
+                      rasa pekat di setiap tegukan.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-body text-xs font-bold tracking-wide text-kopi-ink-soft">
+                      Metode Tarik Kain
+                    </p>
+                    <p className="mt-1.5 font-body text-sm leading-relaxed text-kopi-ink-soft">
+                      Disaring berkali-kali dengan kain flanel tradisional, cara
+                      lama yang menjaga rasa tetap kental dan bulat, persis
+                      seperti puluhan tahun lalu.
+                    </p>
+                  </div>
                 </div>
               </Reveal>
 
               <Reveal delay={200}>
-                <div className="border border-kopi-line bg-kopi-bg/80 p-4">
-                  <p className="font-body text-xs font-bold tracking-wide text-kopi-ink-soft">
-                    Metode Tarik Kain
-                  </p>
-                  <p className="mt-1.5 font-body text-sm leading-relaxed text-kopi-ink-soft">
-                    Disaring berkali-kali dengan kain flanel tradisional, cara
-                    lama yang menjaga rasa tetap kental dan bulat, persis
-                    seperti puluhan tahun lalu.
-                  </p>
-                </div>
-              </Reveal>
-
-              <Reveal delay={300}>
                 <div className="border-l-4 border-kopi-ink bg-kopi-signage p-5 text-kopi-bg shadow-(--shadow-stamp-sm)">
                   <p className="mb-1 font-body text-xs font-bold text-kopi-bg">
                     Catatan Kasir
