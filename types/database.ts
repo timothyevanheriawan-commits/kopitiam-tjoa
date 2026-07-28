@@ -133,6 +133,42 @@ export type Database = {
         }
         Relationships: []
       }
+      login_rate_limit: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string
+        }
+        Relationships: []
+      }
+      staff: {
+        Row: {
+          created_at: string
+          email: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_status_history: {
         Row: {
           changed_at: string
@@ -206,6 +242,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_staff: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
       get_order_status: {
         Args: { p_order_id: string }
         Returns: {

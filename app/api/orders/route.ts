@@ -19,6 +19,14 @@ interface CreateOrderInput {
   items: OrderItemInput[];
 }
 
+// Upper bounds to prevent resource-exhaustion / abuse via absurd payloads.
+// These are intentionally generous for a real kopitiam order, not tight
+// business-rule limits.
+const MAX_CUSTOMER_NAME_LENGTH = 100;
+const MAX_CUSTOMER_NOTE_LENGTH = 500;
+const MAX_ITEMS_PER_ORDER = 50;
+const MAX_QUANTITY_PER_LINE = 20;
+
 export async function POST(request: Request) {
   let body: CreateOrderInput;
 
@@ -41,6 +49,21 @@ export async function POST(request: Request) {
     );
   }
 
+  if (customerName.length > MAX_CUSTOMER_NAME_LENGTH) {
+    return NextResponse.json(
+      { error: "Nama pemesan terlalu panjang." },
+      { status: 400 },
+    );
+  }
+
+  const customerNote = body.customerNote?.trim() || null;
+  if (customerNote && customerNote.length > MAX_CUSTOMER_NOTE_LENGTH) {
+    return NextResponse.json(
+      { error: "Catatan pesanan terlalu panjang." },
+      { status: 400 },
+    );
+  }
+
   if (!Array.isArray(items) || items.length === 0) {
     return NextResponse.json(
       { error: "Keranjang pesanan kosong." },
@@ -48,8 +71,21 @@ export async function POST(request: Request) {
     );
   }
 
+  if (items.length > MAX_ITEMS_PER_ORDER) {
+    return NextResponse.json(
+      { error: "Jumlah item dalam satu pesanan terlalu banyak." },
+      { status: 400 },
+    );
+  }
+
   for (const item of items) {
-    if (!item.menuItemId || !item.quantity || item.quantity < 1) {
+    if (
+      !item.menuItemId ||
+      !item.quantity ||
+      item.quantity < 1 ||
+      item.quantity > MAX_QUANTITY_PER_LINE ||
+      !Number.isInteger(item.quantity)
+    ) {
       return NextResponse.json(
         { error: "Salah satu item pesanan tidak valid." },
         { status: 400 },
@@ -57,7 +93,8 @@ export async function POST(request: Request) {
     }
   }
 
-  // BARU: cegah spam order dari 1 sumber yang sama.
+  // Reject obviously oversized bodies (bounds above already limit this in
+  // practice, but check cheaply before doing any DB work regardless).
   const clientIp = getClientIp(request);
   const withinLimit = await checkRateLimit(clientIp);
   if (!withinLimit) {
@@ -159,7 +196,7 @@ export async function POST(request: Request) {
     .from("orders")
     .insert({
       customer_name: customerName,
-      customer_note: body.customerNote?.trim() || null,
+      customer_note: customerNote,
       subtotal,
     })
     .select("id, order_number")

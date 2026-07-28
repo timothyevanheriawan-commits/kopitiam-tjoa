@@ -103,6 +103,60 @@ create index if not exists order_rate_limit_ip_created_idx
   on order_rate_limit (ip_address, created_at desc);
 
 -- ---------------------------------------------------------------------------
+-- staff — explicit allow-list of which authenticated Supabase Auth users
+-- are actually Kopitiam Tjoa staff. Added because every previous RLS
+-- policy and API route checked only auth.role() = 'authenticated', which
+-- means ANY signed-up user (not just staff) had full admin access. Rows
+-- here must be inserted manually (Supabase Studio / SQL editor) by
+-- someone with service-role access — there is intentionally no public or
+-- authenticated insert policy, so a new Supabase Auth user gains zero
+-- extra access on signup.
+-- ---------------------------------------------------------------------------
+create table if not exists staff (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  email text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table staff enable row level security;
+
+-- A logged-in user may check ONLY whether their own id is on the staff
+-- list (needed so the app can answer "am I staff?" without a service
+-- client) — they cannot enumerate other staff members.
+create policy "staff_read_own_row"
+  on staff for select
+  using (auth.uid() = user_id);
+-- No insert/update/delete policy for anon or authenticated: staff rows
+-- are managed exclusively via the service-role client / Supabase Studio.
+
+create or replace function is_staff()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from staff where user_id = auth.uid()
+  );
+$$;
+
+-- ---------------------------------------------------------------------------
+-- login_rate_limit — sliding-window IP throttle for admin login attempts.
+-- Written/read only via the service-role client (lib/rate-limit.ts);
+-- never touched by anon or authenticated roles directly, hence no RLS
+-- policy is defined for it below (deny-all).
+-- ---------------------------------------------------------------------------
+create table if not exists login_rate_limit (
+  id uuid primary key default gen_random_uuid(),
+  ip_address text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists login_rate_limit_ip_created_idx
+  on login_rate_limit (ip_address, created_at desc);
+
+-- ---------------------------------------------------------------------------
 -- business_settings — single row table
 -- ---------------------------------------------------------------------------
 create table if not exists business_settings (
@@ -205,8 +259,10 @@ $$;
 -- re-validation. Order tracking (/order/[id]) reads through the
 -- get_order_status() RPC (security definer), not direct table access.
 --
--- Authenticated (admin dashboard): read/update orders, read order_items
--- and order_status_history, read/write menu_items and business_settings.
+-- Staff (is_staff() = true, i.e. rows present in the staff table): read/
+-- update orders, read order_items and order_status_history, read/write
+-- menu_items and business_settings. Being a logged-in Supabase Auth user
+-- is NOT sufficient on its own — see the staff table above.
 --
 -- order_rate_limit: RLS enabled with zero policies — deny-all for both
 -- anon and authenticated, since it's only ever touched by the service
@@ -217,6 +273,7 @@ alter table orders enable row level security;
 alter table order_items enable row level security;
 alter table order_status_history enable row level security;
 alter table order_rate_limit enable row level security;
+alter table login_rate_limit enable row level security;
 alter table business_settings enable row level security;
 
 create policy "menu_items_public_read"
@@ -225,8 +282,8 @@ create policy "menu_items_public_read"
 
 create policy "menu_items_staff_write"
   on menu_items for all
-  using (auth.role() = 'authenticated')
-  with check (auth.role() = 'authenticated');
+  using (is_staff())
+  with check (is_staff());
 
 create policy "business_settings readable by anyone"
   on business_settings for select
@@ -234,28 +291,28 @@ create policy "business_settings readable by anyone"
 
 create policy "business_settings writable by authenticated admin"
   on business_settings for all
-  using (auth.role() = 'authenticated')
-  with check (auth.role() = 'authenticated');
+  using (is_staff())
+  with check (is_staff());
 
 create policy "orders_staff_read"
   on orders for select
-  using (auth.role() = 'authenticated');
+  using (is_staff());
 
 create policy "orders_staff_update"
   on orders for update
-  using (auth.role() = 'authenticated');
+  using (is_staff());
 -- No public/anon insert policy: order creation goes through the
 -- service-role client only.
 
 create policy "order_items_staff_read"
   on order_items for select
-  using (auth.role() = 'authenticated');
+  using (is_staff());
 -- No insert policy: item rows are only ever written by the service-role
 -- client immediately after the parent order.
 
 create policy "order_status_history_staff_read"
   on order_status_history for select
-  using (auth.role() = 'authenticated');
+  using (is_staff());
 
 -- order_rate_limit: intentionally no policies — deny-all for anon and
 -- authenticated. Only the service-role client (which bypasses RLS) reads

@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -53,3 +53,10 @@ export async function middleware(request: NextRequest) {
   response.headers.set("x-pathname", request.nextUrl.pathname);
   return response;
 }
+
+// Only run this middleware (and its Supabase auth check) on the routes
+// that actually need it — otherwise every static asset, image, and public
+// page request pays for a getUser() call it never needed.
+export const config = {
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
+};

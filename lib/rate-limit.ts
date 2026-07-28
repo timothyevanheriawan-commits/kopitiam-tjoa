@@ -56,3 +56,45 @@ export async function recordOrderAttempt(ip: string) {
     console.error("Gagal mencatat rate limit attempt:", error);
   }
 }
+
+const LOGIN_WINDOW_MINUTES = 15;
+const MAX_LOGIN_ATTEMPTS = 5;
+
+/**
+ * true kalau IP ini masih boleh mencoba login admin. Dicek SEBELUM
+ * memanggil signInWithPassword, untuk menahan brute-force / credential
+ * stuffing terhadap satu-satunya pintu masuk privileged di aplikasi ini.
+ */
+export async function checkLoginRateLimit(ip: string): Promise<boolean> {
+  const supabase = createServiceClient();
+  const windowStart = new Date(
+    Date.now() - LOGIN_WINDOW_MINUTES * 60 * 1000,
+  ).toISOString();
+
+  const { count, error } = await supabase
+    .from("login_rate_limit")
+    .select("id", { count: "exact", head: true })
+    .eq("ip_address", ip)
+    .gte("created_at", windowStart);
+
+  if (error) {
+    // Fail open here too, same reasoning as checkRateLimit: an infra
+    // problem on our end shouldn't lock legitimate staff out entirely.
+    console.error("Gagal cek rate limit login:", error);
+    return true;
+  }
+
+  return (count ?? 0) < MAX_LOGIN_ATTEMPTS;
+}
+
+/** Catat 1 percobaan login (berhasil atau gagal) dari IP ini. */
+export async function recordLoginAttempt(ip: string) {
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .from("login_rate_limit")
+    .insert({ ip_address: ip });
+
+  if (error) {
+    console.error("Gagal mencatat rate limit login:", error);
+  }
+}

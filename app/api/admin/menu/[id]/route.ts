@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { isStaff } from "@/lib/supabase/is-staff";
 
 export async function PATCH(
   request: Request,
@@ -11,12 +12,22 @@ export async function PATCH(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!user || !(await isStaff(supabase))) {
     return NextResponse.json({ error: "Tidak diizinkan." }, { status: 401 });
   }
 
   const { id } = await params;
-  const body = await request.json();
+
+  let body: { is_available?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Format permintaan tidak valid." },
+      { status: 400 },
+    );
+  }
+
   const isAvailable = Boolean(body.is_available);
 
   const service = createServiceClient();

@@ -20,6 +20,37 @@ interface OrderStatusData {
   }[];
 }
 
+// Raw shape returned by the `get_order_status` RPC (snake_case, matches
+// the Postgres column names). Never render this directly — always pass
+// it through mapOrderData first, or you'll get `undefined` on every
+// item field and crash formatIDR().
+interface RawOrderStatusData extends Omit<OrderStatusData, "items"> {
+  items: {
+    item_name: string;
+    selected_variant: string | null;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+  }[];
+}
+
+// Single point of translation between the RPC's snake_case item shape
+// and the camelCase shape this component works with. Both the initial
+// server-fetched data and every polling refresh go through this, so
+// there's exactly one place to fix if the RPC's shape ever changes again.
+function mapOrderData(raw: RawOrderStatusData): OrderStatusData {
+  return {
+    ...raw,
+    items: raw.items.map((item) => ({
+      itemName: item.item_name,
+      selectedVariant: item.selected_variant,
+      quantity: item.quantity,
+      unitPrice: item.unit_price,
+      lineTotal: item.line_total,
+    })),
+  };
+}
+
 const STATUS_STEPS = [
   { key: "received", label: "Diterima" },
   { key: "preparing", label: "Diproses" },
@@ -70,11 +101,11 @@ export function OrderStatusView({
   initialData,
 }: {
   orderId: string;
-  initialData: OrderStatusData;
+  initialData: RawOrderStatusData;
 }) {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState(() => mapOrderData(initialData));
   const [copyLabel, setCopyLabel] = useState("Salin Tautan");
-  const previousStatus = useRef(initialData.status);
+  const previousStatus = useRef(data.status);
 
   useEffect(() => {
     if (data.status === "completed" || data.status === "cancelled") return;
@@ -86,7 +117,7 @@ export function OrderStatusView({
         .maybeSingle();
 
       if (!error && fresh) {
-        setData(fresh as OrderStatusData);
+        setData(mapOrderData(fresh as RawOrderStatusData));
       }
     }, 12000);
 

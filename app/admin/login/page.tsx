@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AdminButton } from "@/components/admin/admin-button";
 
@@ -16,6 +17,19 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
+
+    // Server-side throttle check FIRST — refuses before any credentials
+    // reach Supabase Auth if this IP has attempted too many times recently.
+    const throttleRes = await fetch("/api/auth/login-attempt", {
+      method: "POST",
+    });
+
+    if (throttleRes.status === 429) {
+      const data = await throttleRes.json().catch(() => null);
+      setError(data?.error ?? "Terlalu banyak percobaan masuk, coba lagi nanti.");
+      setIsSubmitting(false);
+      return;
+    }
 
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -105,9 +119,9 @@ export default function AdminLoginPage() {
 
         <p className="mt-6 text-center font-body text-xs text-kopi-ink-soft">
           Bukan staf? Kembali ke{" "}
-          <a href="/" className="underline">
+          <Link href="/" className="underline">
             beranda
-          </a>
+          </Link>
           .
         </p>
       </div>

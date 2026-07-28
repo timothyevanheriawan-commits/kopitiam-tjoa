@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { isStaff } from "@/lib/supabase/is-staff";
 
 export async function GET() {
   const supabase = await createClient();
@@ -8,7 +9,9 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  // Being logged in is not enough — must be an explicit staff member.
+  // See supabase/schema.sql (`staff` table / `is_staff()`).
+  if (!user || !(await isStaff(supabase))) {
     return NextResponse.json({ error: "Tidak diizinkan." }, { status: 401 });
   }
 
