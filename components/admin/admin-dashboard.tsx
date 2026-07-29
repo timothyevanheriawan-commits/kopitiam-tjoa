@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import type { OrderStatus } from "@/types/domain";
 import type { AdminOrder, AdminMenuItem } from "./admin-types";
 import { AdminToolbar } from "./admin-toolbar";
+import { DailyStats } from "./daily-stats";
 import { OrderList } from "./order-list";
 import { StockList } from "./stock-list";
 import { OrderHistory } from "./order-history";
@@ -23,6 +24,9 @@ export function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
+  const [orderCount, setOrderCount] = useState<number | null>(null);
+  const [revenue, setRevenue] = useState<number | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   const router = useRouter();
   const knownOrderIds = useRef<Set<string>>(new Set());
@@ -72,6 +76,21 @@ export function AdminDashboard() {
     }
   }, []);
 
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/stats", { cache: "no-store" });
+      if (!res.ok) throw new Error("failed");
+      const data = await res.json();
+      setOrderCount(data.orderCount ?? 0);
+      setRevenue(data.revenue ?? 0);
+    } catch {
+      // Non-critical — the order queue below is the operational source
+      // of truth; stats simply stay stale/blank until the next load.
+    } finally {
+      setIsLoadingStats(false);
+    }
+  }, []);
+
   // loadOrders/loadMenu are async; their setState calls happen after an
   // await, not synchronously. This effect syncs with external systems
   // (initial fetch, Supabase realtime channel, polling fallback), which
@@ -80,6 +99,7 @@ export function AdminDashboard() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- see above
     loadOrders();
     loadMenu();
+    loadStats();
 
     const supabase = createClient();
     const channel = supabase
@@ -87,16 +107,25 @@ export function AdminDashboard() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "orders" },
-        () => loadOrders(),
+        () => {
+          loadOrders();
+          loadStats();
+        },
       )
       .subscribe();
 
     // Safety-net poll (slow) in case the realtime socket silently drops,
     // plus an immediate refetch whenever the tab regains focus — covers
     // the case where a backgrounded tab throttles timers for minutes.
-    const interval = setInterval(loadOrders, 30000);
+    const interval = setInterval(() => {
+      loadOrders();
+      loadStats();
+    }, 30000);
     function onVisibilityChange() {
-      if (document.visibilityState === "visible") loadOrders();
+      if (document.visibilityState === "visible") {
+        loadOrders();
+        loadStats();
+      }
     }
     document.addEventListener("visibilitychange", onVisibilityChange);
 
@@ -105,7 +134,7 @@ export function AdminDashboard() {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [loadOrders, loadMenu]);
+  }, [loadOrders, loadMenu, loadStats]);
 
   // Print is triggered from state, not a hardcoded setTimeout — waits for
   // two paint frames so the print-only DOM node is guaranteed to exist,
@@ -233,6 +262,12 @@ export function AdminDashboard() {
               </button>
             </div>
           )}
+
+          <DailyStats
+            orderCount={orderCount}
+            revenue={revenue}
+            isLoading={isLoadingStats}
+          />
 
           <OrderList
             activeOrders={activeOrders}

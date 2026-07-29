@@ -4,7 +4,7 @@ import { KopiIllustration } from "@/components/home/kopi-illustration";
 import { LocationCard } from "@/components/home/location-card";
 import { OrderTray } from "@/components/cart/order-tray";
 import { getOpenStatus } from "@/lib/hours";
-import { DEFAULT_HOURS } from "@/lib/constants";
+import { getBusinessHours } from "@/lib/business-hours";
 import { HeroContent } from "@/components/home/hero-content";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -13,8 +13,9 @@ import { SectionHeader } from "@/components/ui/section-header";
 // contract (per the round-1 recommendation). No shape-guessing here —
 // if getOpenStatus's return type changes, fix it at the source, not here.
 
-export default function Home() {
-  const status = getOpenStatus(DEFAULT_HOURS, null);
+export default async function Home() {
+  const { hours, manualOverride } = await getBusinessHours();
+  const status = getOpenStatus(hours, manualOverride);
   const isOpen = status.isOpen;
 
   return (

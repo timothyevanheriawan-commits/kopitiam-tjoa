@@ -84,3 +84,28 @@ export function getWibDayKey(now: Date = new Date()): keyof BusinessHours {
   const { dayIndex } = toWibParts(now);
   return DAY_KEYS[dayIndex];
 }
+
+/**
+ * Returns the UTC instants marking the start (inclusive) and end
+ * (exclusive) of "today" as a WIB wall-clock day. Use this to query
+ * timestamptz columns for "today's orders" — comparing against a UTC
+ * midnight boundary would silently be off by 7 hours.
+ */
+export function getWibDayBoundsUtc(now: Date = new Date()): {
+  startUtc: string;
+  endUtc: string;
+} {
+  const wibWallClock = new Date(now.getTime() + WIB_OFFSET_MINUTES * 60_000);
+  const y = wibWallClock.getUTCFullYear();
+  const m = wibWallClock.getUTCMonth();
+  const d = wibWallClock.getUTCDate();
+
+  const startUtcMs =
+    Date.UTC(y, m, d, 0, 0, 0) - WIB_OFFSET_MINUTES * 60_000;
+  const endUtcMs = startUtcMs + 24 * 60 * 60_000;
+
+  return {
+    startUtc: new Date(startUtcMs).toISOString(),
+    endUtc: new Date(endUtcMs).toISOString(),
+  };
+}

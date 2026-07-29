@@ -6,6 +6,8 @@ import {
   getClientIp,
   recordOrderAttempt,
 } from "@/lib/rate-limit";
+import { getBusinessHours } from "@/lib/business-hours";
+import { getOpenStatus } from "@/lib/hours";
 
 interface OrderItemInput {
   menuItemId: string;
@@ -91,6 +93,19 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+  }
+
+  // Server-side enforcement, not just a hidden button — hiding the
+  // checkout UI when closed is a courtesy for the browser, but a direct
+  // POST here must be rejected the same way regardless of what UI state
+  // the client claims to be in.
+  const { hours, manualOverride } = await getBusinessHours();
+  const openStatus = getOpenStatus(hours, manualOverride);
+  if (!openStatus.isOpen) {
+    return NextResponse.json(
+      { error: "Kedai sedang tutup, pesanan tidak dapat diproses saat ini." },
+      { status: 409 },
+    );
   }
 
   // Reject obviously oversized bodies (bounds above already limit this in

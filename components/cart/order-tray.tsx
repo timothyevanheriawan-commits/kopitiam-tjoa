@@ -8,7 +8,7 @@ function formatIDR(amount: number) {
   return `Rp ${amount.toLocaleString("id-ID")}`;
 }
 
-export function OrderTray() {
+export function OrderTray({ isShopOpen = true }: { isShopOpen?: boolean }) {
   const router = useRouter();
   const lines = useCartStore((state) => state.lines);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -36,7 +36,8 @@ export function OrderTray() {
 
   if (itemCount === 0 && !isOpen) return null;
 
-  const canCheckout = lines.length > 0 && customerName.trim().length > 0;
+  const canCheckout =
+    isShopOpen && lines.length > 0 && customerName.trim().length > 0;
 
   async function handleCheckout() {
     try {
@@ -222,7 +223,9 @@ export function OrderTray() {
                       Buat Pesanan
                     </button>
                     <p className="text-center font-body text-xs text-kopi-ink-soft">
-                      Isi nama Anda untuk melanjutkan
+                      {!isShopOpen
+                        ? "Kedai sedang tutup. Keranjang Anda tersimpan — kembali lagi saat kami buka."
+                        : "Isi nama Anda untuk melanjutkan"}
                     </p>
                   </>
                 )}

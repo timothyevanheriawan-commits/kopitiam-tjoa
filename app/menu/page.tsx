@@ -3,15 +3,33 @@ import { MenuBoard } from "@/components/menu/menu-board";
 import { OrderTray } from "@/components/cart/order-tray";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Reveal } from "@/components/ui/reveal";
+import { getBusinessHours } from "@/lib/business-hours";
+import { getOpenStatus } from "@/lib/hours";
 
 const CASHIER_CONTACT_HREF = "https://wa.me/62REPLACE_WITH_REAL_NUMBER";
 
-export default function MenuPage() {
+export default async function MenuPage() {
+  const { hours, manualOverride } = await getBusinessHours();
+  const status = getOpenStatus(hours, manualOverride);
   return (
     <main
       id="main-content"
       className="flex-1 bg-kopi-bg pb-24 text-kopi-ink selection:bg-kopi-signage selection:text-kopi-bg md:pb-32"
     >
+      {!status.isOpen && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="border-b border-kopi-line bg-kopi-bg-raised px-6 py-3 text-center font-body text-sm text-kopi-ink-soft"
+        >
+          Kedai sedang <span className="font-bold text-kopi-signage">tutup</span>{" "}
+          saat ini
+          {status.today.open && status.today.close
+            ? ` — buka kembali pukul ${status.today.open} WIB.`
+            : ". Anda tetap bisa melihat menu, namun belum bisa memesan."}
+        </div>
+      )}
+
       {/* 1. HERO — double-rule bottom border (echoes the menu board's own
           double frame below, a deliberate visual rhyme), subtle depth
           gradient, and embossed headline for print-shop weight instead
@@ -162,7 +180,7 @@ export default function MenuPage() {
         </div>
       </section>
 
-      <OrderTray />
+      <OrderTray isShopOpen={status.isOpen} />
     </main>
   );
 }
