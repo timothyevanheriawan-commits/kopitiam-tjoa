@@ -1,6 +1,9 @@
 // app/order/[id]/page.tsx
 import { createClient } from "@/lib/supabase/server";
-import { OrderStatusView } from "@/components/order/order-status-view";
+import {
+  OrderStatusView,
+  type RawOrderStatusData,
+} from "@/components/order/order-status-view";
 import type { OrderStatus } from "@/types/domain";
 
 const UUID_REGEX =
@@ -13,21 +16,6 @@ const VALID_STATUSES: OrderStatus[] = [
   "completed",
   "cancelled",
 ];
-
-interface OrderStatusData {
-  order_number: string;
-  status: OrderStatus;
-  customer_name: string;
-  subtotal: number;
-  created_at: string;
-  items: {
-    itemName: string;
-    selectedVariant: string | null;
-    quantity: number;
-    unitPrice: number;
-    lineTotal: number;
-  }[];
-}
 
 function isOrderStatus(value: string): value is OrderStatus {
   return VALID_STATUSES.includes(value as OrderStatus);
@@ -53,7 +41,9 @@ export default async function OrderStatusPage({
     return <NotFoundState />;
   }
 
-  return <OrderStatusView orderId={id} initialData={data as OrderStatusData} />;
+  return (
+    <OrderStatusView orderId={id} initialData={data as RawOrderStatusData} />
+  );
 }
 
 function NotFoundState() {

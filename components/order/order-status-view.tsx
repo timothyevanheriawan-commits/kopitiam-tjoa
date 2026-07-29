@@ -24,7 +24,7 @@ interface OrderStatusData {
 // the Postgres column names). Never render this directly — always pass
 // it through mapOrderData first, or you'll get `undefined` on every
 // item field and crash formatIDR().
-interface RawOrderStatusData extends Omit<OrderStatusData, "items"> {
+export interface RawOrderStatusData extends Omit<OrderStatusData, "items"> {
   items: {
     item_name: string;
     selected_variant: string | null;

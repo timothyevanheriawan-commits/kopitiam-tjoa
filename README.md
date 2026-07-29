@@ -53,7 +53,7 @@ kopitiam. Next.js 16 (App Router) + Supabase (Postgres/Auth) + Zustand.
 
 ## Admin panel
 
-`/admin` is protected by `middleware.ts`, which requires a logged-in
+`/admin` is protected by `proxy.ts`, which requires a logged-in
 Supabase user *and* a matching `staff` table row (checked again inside
 every `/api/admin/*` route handler as defense-in-depth). Log in at
 `/admin/login`.
