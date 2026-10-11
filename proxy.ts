@@ -1,62 +1,41 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export function proxy(request: NextRequest) {
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const isDev = process.env.NODE_ENV === "development";
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' blob: data: https://*.supabase.co",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+    "frame-src https://www.google.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    "upgrade-insecure-requests",
+  ].join("; ");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", csp);
 
-  const pathname = request.nextUrl.pathname;
-  const isAdminPage = pathname.startsWith("/admin");
-  const isAdminApiRoute = pathname.startsWith("/api/admin");
-  const isLoginRoute = pathname === "/admin/login";
-
-  // /api/admin/* route handlers already re-check auth themselves (defense
-  // in depth), but this stops unauthenticated requests before they reach
-  // the handler at all, and means there's one place to fix if a new
-  // admin route forgets its own check.
-  if (isAdminApiRoute && !user) {
-    return NextResponse.json({ error: "Tidak diizinkan." }, { status: 401 });
-  }
-
-  if (isAdminPage && !isLoginRoute && !user) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
-  }
-
-  if (isLoginRoute && user) {
-    return NextResponse.redirect(new URL("/admin", request.url));
-  }
-
-  response.headers.set("x-pathname", request.nextUrl.pathname);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set("Content-Security-Policy", csp);
   return response;
 }
 
-// Only run this middleware (and its Supabase auth check) on the routes
-// that actually need it — otherwise every static asset, image, and public
-// page request pays for a getUser() call it never needed.
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: [
+    {
+      source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "purpose", value: "prefetch" },
+      ],
+    },
+  ],
 };
