@@ -1,18 +1,13 @@
 import { ButtonLink } from "@/components/ui/button-link";
-
-// TODO: replace with the real embed URL for the shop's Google Maps listing.
-const MAPS_EMBED_SRC =
-  "https://www.google.com/maps/embed?pb=REPLACE_WITH_REAL_EMBED";
-const MAPS_DIRECTIONS_HREF =
-  "https://maps.google.com/?q=Jl.+Kembang+Jepun,+Surabaya";
+import { SHOP_MAPS_EMBED_SRC, SHOP_MAPS_HREF } from "@/lib/constants";
 
 export function LocationCard() {
   return (
     <div className="border border-kopi-ink bg-kopi-bg shadow-(--shadow-stamp-md)">
-      <div className="aspect-4/3-full md:aspect-video">
+      <div className="aspect-4/3 md:aspect-video">
         <iframe
           title="Lokasi kedai di Jl. Kembang Jepun, Surabaya"
-          src={MAPS_EMBED_SRC}
+          src={SHOP_MAPS_EMBED_SRC}
           className="h-full w-full grayscale"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
@@ -23,7 +18,7 @@ export function LocationCard() {
           Jl. Kembang Jepun, Surabaya
         </p>
         <ButtonLink
-          href={MAPS_DIRECTIONS_HREF}
+          href={SHOP_MAPS_HREF}
           variant="secondary"
           target="_blank"
           rel="noopener noreferrer"

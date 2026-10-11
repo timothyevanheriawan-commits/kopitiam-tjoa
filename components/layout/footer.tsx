@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { BusinessHours } from "@/types/domain";
 import { Logo } from "@/components/layout/logo";
+import { SHOP_MAPS_HREF } from "@/lib/constants";
 import { getOpenStatus, getWibDayKey } from "@/lib/hours";
 
 const DAY_LABELS: { key: keyof BusinessHours; label: string }[] = [
@@ -30,6 +32,7 @@ export function Footer({
 
   return (
     <footer className="mt-32 border-t border-kopi-line bg-kopi-bg-raised/60">
+      <div aria-hidden="true" className="tegel-band" />
       <div className="mx-auto max-w-5xl px-6 py-20">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.9fr_1.2fr]">
           <div>
@@ -75,7 +78,7 @@ export function Footer({
                 Surabaya, Jawa Timur
               </p>
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Jalan+Kembang+Jepun+Surabaya"
+                href={SHOP_MAPS_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2 inline-block font-body text-sm text-kopi-heritage underline"
@@ -143,6 +146,15 @@ export function Footer({
           <p className="font-body text-xs text-kopi-ink-soft/80">
             © {new Date().getFullYear()} Kopitiam Tjoa.
           </p>
+          <Image
+            src="/kopitiam/seal-cai.svg"
+            alt=""
+            aria-hidden="true"
+            width={44}
+            height={44}
+            unoptimized
+            className="opacity-90 mix-blend-multiply"
+          />
         </div>
       </div>
     </footer>

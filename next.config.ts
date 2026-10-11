@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
-const isDev = process.env.NODE_ENV !== "production";
-
+// Content-Security-Policy is NOT set here. It lives in proxy.ts because it
+// needs a fresh per-request nonce so Next's inline hydration scripts can
+// run. A static CSP header here would stack with the proxy's and the
+// stricter one wins, which breaks hydration on every interactive page.
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -14,27 +16,6 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
   },
-  // CSP is skipped entirely in dev — Next's dev/Turbopack runtime relies on
-  // inline scripts (HMR, hydration bootstrap) that 'script-src self' blocks,
-  // which breaks the dev server outright. Production only.
-  ...(isDev
-    ? []
-    : [
-        {
-          key: "Content-Security-Policy",
-          value: [
-            "default-src 'self'",
-            "script-src 'self'",
-            "style-src 'self' 'unsafe-inline'",
-            "img-src 'self' data:",
-            "font-src 'self' data:",
-            "connect-src 'self' https://*.supabase.co",
-            "frame-ancestors 'none'",
-            "base-uri 'self'",
-            "form-action 'self'",
-          ].join("; "),
-        },
-      ]),
 ];
 
 const nextConfig: NextConfig = {

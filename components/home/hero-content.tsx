@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Signboard } from "@/components/home/signboard";
@@ -65,8 +66,24 @@ export function HeroContent({
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ ...transition, delay: prefersReducedMotion ? 0 : 0.5 }}
-        className="border border-kopi-line bg-kopi-bg p-6"
+        className="relative border border-kopi-line bg-kopi-bg p-6"
       >
+        {/* Decorative ink stamp. Deliberately NOT rotated (rotation is
+            reserved for .stamp-button / .stamp-habis). The real status
+            is announced by OpenBadge below, so this is aria-hidden. */}
+        <Image
+          src={
+            status.isOpen
+              ? "/kopitiam/stamp-buka.svg"
+              : "/kopitiam/stamp-tutup.svg"
+          }
+          alt=""
+          aria-hidden="true"
+          width={104}
+          height={104}
+          unoptimized
+          className="pointer-events-none absolute -right-3 -top-11 opacity-90 mix-blend-multiply"
+        />
         <OpenBadge status={status} />
         <p className="mt-4 font-body text-sm leading-relaxed text-kopi-ink-soft">
           Senin–Jumat 05.00–15.00
