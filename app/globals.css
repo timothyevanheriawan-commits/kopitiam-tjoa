@@ -206,6 +206,60 @@ select:focus-visible,
   }
 }
 
+/*
+  Tegel band — one strip of encaustic floor tile (public/kopitiam/tegel.svg).
+  RULE: footer only, one call site. It is separate from .texture-tile on
+  purpose: that one is a faint paper texture, this is a deliberate
+  architectural edge. Do not stack the two in the same section.
+*/
+.tegel-band {
+  height: 40px;
+  border-bottom: 1px solid var(--kopi-line);
+  background: url("/kopitiam/tegel.svg") repeat-x center / 40px 40px;
+}
+
+/*
+  Karcis antrian — queue ticket with a punched left edge, used by
+  <KarcisAntrian> on the order status page only. The punches are painted
+  in the page color (not masked out) so the hard stamp shadow stays clean.
+  Assumes it sits on --kopi-bg, which is the order page background.
+*/
+.karcis {
+  display: inline-block;
+  max-width: 100%;
+}
+.karcis__body {
+  width: 17rem;
+  max-width: 100%;
+  padding: 0.9rem 1.1rem 0.8rem 1.9rem;
+  text-align: left;
+  background:
+    radial-gradient(circle at 0 12px, var(--kopi-bg) 6px, color-mix(in srgb, var(--kopi-bg) 0%, transparent) 6.5px)
+      left top / 24px 24px repeat-y,
+    var(--kopi-bg-raised);
+  box-shadow: var(--shadow-stamp-sm);
+}
+
+/*
+  Paper grain — one fixed, non-interactive overlay over the whole page.
+  Sits below the skip-link (z-50) and is hidden in print.
+*/
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: url("/kopitiam/grain.svg");
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+@media print {
+  body::after {
+    display: none;
+  }
+}
+
 /* Pull-quote — the one and only quote treatment sitewide.
    Use this class directly; do not hand-roll an equivalent with
    Tailwind utilities in a component. */

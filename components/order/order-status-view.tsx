@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { OrderStatus } from "@/types/domain";
 import { BrandMark } from "../brand/brand-mark";
+import { KarcisAntrian } from "./karcis-antrian";
 
 interface OrderStatusData {
   order_number: string;
@@ -139,25 +140,21 @@ export function OrderStatusView({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-16 md:py-24">
-      <div className="text-center pb-6 mb-10 border-b border-dashed border-kopi-line">
+      <div className="mb-10 flex flex-col items-center border-b border-dashed border-kopi-line pb-8 text-center">
         {/* Derived from live status, not a hardcoded string — this is
             the fact this whole page exists to communicate, it must
             never be able to disagree with the progress bar below it. */}
         <span
-          className={`index-tag mb-3! justify-center flex ${STATUS_TAG_COLOR[data.status]}`}
+          className={`index-tag mb-4! justify-center flex ${STATUS_TAG_COLOR[data.status]}`}
           aria-live="polite"
         >
           {STATUS_MESSAGE[data.status]}
         </span>
-        <h1 className="font-display text-3xl md:text-4xl text-kopi-ink tracking-tight mb-2">
-          #{data.order_number}
-        </h1>
-        <p className="font-body text-sm text-kopi-ink-soft">
-          Atas nama {data.customer_name}
-        </p>
-        <p className="font-utility text-[10px] uppercase tracking-widest text-kopi-ink-soft mt-1">
-          {formatOrderDate(data.created_at)}
-        </p>
+        <KarcisAntrian
+          orderNumber={data.order_number}
+          customerName={data.customer_name}
+          issuedAt={formatOrderDate(data.created_at)}
+        />
       </div>
 
       {data.status === "received" && (

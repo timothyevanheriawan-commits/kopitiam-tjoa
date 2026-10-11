@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -9 7.6" result="holes"/>
+      <feComposite in="SourceGraphic" in2="holes" operator="in" result="speck"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="9" result="w"/>
+      <feDisplacementMap in="speck" in2="w" scale="3"/>
+    </filter>
+  </defs>
+  <g filter="url(#ink)" fill="#b5342a">
+    <rect x="8" y="8" width="104" height="104" rx="6"/>
+    <rect x="15" y="15" width="90" height="90" rx="2" fill="none" stroke="#f2ead9" stroke-width="3"/>
+    <g fill="#f2ead9" font-family="'Noto Serif CJK SC','Noto Serif SC','Songti SC','SimSun',serif" font-weight="900" text-anchor="middle">
+      <text x="60" y="58" font-size="40">蔡</text>
+      <text x="60" y="98" font-size="40">記</text>
+    </g>
+  </g>
+</svg>

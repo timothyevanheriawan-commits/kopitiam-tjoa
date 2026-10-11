@@ -6,7 +6,12 @@ import { Reveal } from "@/components/ui/reveal";
 import { getBusinessHours } from "@/lib/business-hours";
 import { getOpenStatus } from "@/lib/hours";
 
-const CASHIER_CONTACT_HREF = "https://wa.me/62REPLACE_WITH_REAL_NUMBER";
+// Same env var the checkout flow uses (lib/whatsapp.ts). If it is not set
+// the button is hidden rather than linking customers to a dead number.
+const CASHIER_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+const CASHIER_CONTACT_HREF = CASHIER_NUMBER
+  ? `https://wa.me/${CASHIER_NUMBER}`
+  : null;
 
 export default async function MenuPage() {
   const { hours, manualOverride } = await getBusinessHours();
@@ -167,14 +172,16 @@ export default async function MenuPage() {
                 </div>
               </div>
 
-              <ButtonLink
-                href={CASHIER_CONTACT_HREF}
-                target="_blank"
-                variant="accent"
-                className="whitespace-nowrap"
-              >
-                Chat ke Meja Kasir
-              </ButtonLink>
+              {CASHIER_CONTACT_HREF && (
+                <ButtonLink
+                  href={CASHIER_CONTACT_HREF}
+                  target="_blank"
+                  variant="accent"
+                  className="whitespace-nowrap"
+                >
+                  Chat ke Meja Kasir
+                </ButtonLink>
+              )}
             </div>
           </Reveal>
         </div>
